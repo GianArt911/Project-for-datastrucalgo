@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Zack's Foodbar - Search Module</title>
+    </head>
+    <body>
+        <h1>Zack's Foodbar - Search Module</h1>
+        <p>Enter an ItemID or Item Name to locate item</p>
+
+<div class="search-container">
+        <input type="text" id="searchInput" placeholder="e.g. 202 or Tea">
+        <button type="button" id="searchButton">Search Item</button>
+    </div>
+
+    <div class="result-box" id="resultOutput">
+        Search results will appear here.
+    </div>
+
+    <script src="searchModule.js"></script>
+<script>
+    document.getElementById("searchButton").addEventListener("click", function() {
+        var query = document.getElementById("searchInput").value;
+        var outputContainer = document.getElementById("resultOutput");
+
+        if (query.trim() === "") {
+            outputContainer.innerHTML = "Please enter a valid search query.";
+            return;
+        }
+
+        if (typeof searchModule === "function") {
+            var results = searchModule(query);
+            
+            if (results && results.length > 0) {
+                var htmlOutput = "<strong>Item(s) Found (" + results.length + "):</strong><br><br>";
+                
+                for (var i = 0; i < results.length; i++) {
+                    htmlOutput += "<strong>ID:</strong> " + results[i].id + "<br>" +
+                        "<strong>Name:</strong> " + results[i].name + "<br>" +
+                        "<strong>Price:</strong> ₱" + results[i].price.toFixed(2) + "<br><hr>";
+                }
+                
+                outputContainer.innerHTML = htmlOutput;
+            } else {
+                outputContainer.innerHTML = "No matching item found.";
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
