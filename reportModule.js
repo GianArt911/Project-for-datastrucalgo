@@ -7,10 +7,37 @@ const historicalSales = [
     { name: "Classic Milk Tea", unitsSold: 342, grossRevenue: 41040.00, date: "2026-09-01" },
     { name: "Brown Sugar Boba", unitsSold: 289, grossRevenue: 40460.00, date: "2026-09-01" },
     { name: "Cheese Fries", unitsSold: 180, grossRevenue: 15300.00, date: "2026-09-02" },
-    { name: "Taro Milk Tea", unitsSold: 95, grossRevenue: 12350.00, date: "2026-09-03" }
+    { name: "Taro Milk Tea", unitsSold: 95, grossRevenue: 12350.00, date: "2026-09-03" },
+    { name: "Chicken Poppers", unitsSold: 210, grossRevenue: 23100.00, date: "2026-09-03" },
+    { name: "Matcha Latte", unitsSold: 140, grossRevenue: 18900.00, date: "2026-09-04" },
+    { name: "Barbecue Fries", unitsSold: 180, grossRevenue: 15300.00, date: "2026-09-04" }, // Duplicate revenue tie test
+    { name: "Mango Fruit Tea", unitsSold: 120, grossRevenue: 13800.00, date: "2026-09-05" },
+    { name: "Tapioca Pearls", unitsSold: 500, grossRevenue: 10000.00, date: "2026-09-05" }, // High units, low revenue test
+    { name: "Oolong Milk Tea", unitsSold: 88, grossRevenue: 11000.00, date: "2026-09-06" }
 ];
 
-// QuickSort Algorithm: Recursively sorts items in descending order based on selected metric
+// Helper Function: Manual array concatenation (Replaces array spread [...left, pivot, ...right])
+function manualCombineArrays(leftArr, pivotItem, rightArr) {
+    const combined = [];
+    let count = 0;
+
+    for (let i = 0; i < leftArr.length; i++) {
+        combined[count] = leftArr[i];
+        count = count + 1;
+    }
+
+    combined[count] = pivotItem;
+    count = count + 1;
+
+    for (let j = 0; j < rightArr.length; j++) {
+        combined[count] = rightArr[j];
+        count = count + 1;
+    }
+
+    return combined;
+}
+
+// QuickSort Algorithm: Manual array placement (No .push())
 function quickSortDescending(arr, sortByMetric) {
     if (arr.length <= 1) {
         return arr;
@@ -18,18 +45,25 @@ function quickSortDescending(arr, sortByMetric) {
 
     const pivot = arr[arr.length - 1]; // Pick last item as pivot
     const left = [];
+    let leftCount = 0;
     const right = [];
+    let rightCount = 0;
 
     for (let i = 0; i < arr.length - 1; i++) {
         // Higher values placed on left array for descending rank order
         if (arr[i][sortByMetric] > pivot[sortByMetric]) {
-            left.push(arr[i]);
+            left[leftCount] = arr[i];
+            leftCount = leftCount + 1;
         } else {
-            right.push(arr[i]);
+            right[rightCount] = arr[i];
+            rightCount = rightCount + 1;
         }
     }
 
-    return [...quickSortDescending(left, sortByMetric), pivot, ...quickSortDescending(right, sortByMetric)];
+    const sortedLeft = quickSortDescending(left, sortByMetric);
+    const sortedRight = quickSortDescending(right, sortByMetric);
+
+    return manualCombineArrays(sortedLeft, pivot, sortedRight);
 }
 
 function generateReportModule(startDate, endDate, sortByMetric) {
@@ -38,8 +72,16 @@ function generateReportModule(startDate, endDate, sortByMetric) {
     console.log(`Sorted By: ${sortByMetric}`);
     console.log(`============================================================`);
 
-    // 1. Filter dataset by date range
-    const reportData = historicalSales.filter(record => record.date >= startDate && record.date <= endDate);
+    // 1. Filter dataset by date range using a manual for loop (No .filter())
+    const reportData = [];
+    let reportCount = 0;
+
+    for (let i = 0; i < historicalSales.length; i++) {
+        if (historicalSales[i].date >= startDate && historicalSales[i].date <= endDate) {
+            reportData[reportCount] = historicalSales[i];
+            reportCount = reportCount + 1;
+        }
+    }
 
     if (reportData.length === 0) {
         console.log("No transactions found for the specified date range.");
@@ -49,12 +91,13 @@ function generateReportModule(startDate, endDate, sortByMetric) {
     // 2. Sort filtered list descending using QuickSort
     const sortedReport = quickSortDescending(reportData, sortByMetric);
 
-    // 3. Output formatted report
+    // 3. Output formatted report using a manual loop (No .forEach())
     console.log("Rank | Item Name             | Units Sold | Gross Revenue");
     console.log("------------------------------------------------------------");
-    sortedReport.forEach((item, index) => {
-        console.log(`${index + 1}    | ${item.name.padEnd(21)} | ${String(item.unitsSold).padEnd(10)} | ₱${item.grossRevenue.toFixed(2)}`);
-    });
+    for (let j = 0; j < sortedReport.length; j++) {
+        const item = sortedReport[j];
+        console.log(`${j + 1}    | ${item.name.padEnd(21)} | ${String(item.unitsSold).padEnd(10)} | ₱${item.grossRevenue.toFixed(2)}`);
+    }
 }
 
 // --- TESTING THE MODULE ---
